@@ -277,19 +277,21 @@ function __keys_rotate -a group provider
 end
 
 # SSH keys: stored as binary entries under ssh/<filename>.
+# Only key pairs (~/.ssh/id_* and their .pub); ~/.ssh/config stays per machine.
+# Uses `gopass cat` (stdin) so commit messages never contain local paths.
 function __keys_ssh -a sub
     set -l force 0
     contains -- --force $argv; and set force 1
     switch "$sub"
         case push
-            set -l files ~/.ssh/config
+            set -l files
             for k in ~/.ssh/id_*
                 string match -q '*.pub' -- $k; and continue
                 set -a files $k $k.pub
             end
             for file in $files
                 test -f $file; or continue
-                gopass --yes fscopy $file ssh/(path basename $file) >/dev/null
+                gopass cat ssh/(path basename $file) <$file >/dev/null
                 and echo "pushed ssh/"(path basename $file)
             end
         case pull
@@ -302,8 +304,9 @@ function __keys_ssh -a sub
                     continue
                 end
                 test -e $dest; and cp -p $dest $dest.bak-(date +%Y%m%d%H%M%S)
-                gopass --yes fscopy $e $dest >/dev/null; or continue
-                if string match -q '*.pub' -- $name; or test "$name" = known_hosts
+                printf '' >$dest; and chmod 600 $dest   # never world-readable, even briefly
+                gopass cat $e >$dest; or continue
+                if string match -q '*.pub' -- $name
                     chmod 644 $dest
                 else
                     chmod 600 $dest

@@ -41,7 +41,7 @@ are visible to anyone with repo access.
 | Path in the store | Contents | Used by |
 |---|---|---|
 | `llm/<provider>/<name>` | API keys (first line), optional `field: value` lines | `keys` → env vars (`~/.config/keys/groups.conf`) |
-| `ssh/<file>` | `~/.ssh/config`, `id_*` and `*.pub` | `keys ssh push` / `keys ssh pull` |
+| `ssh/<file>` | SSH key pairs (`~/.ssh/id_*` and `*.pub`); `~/.ssh/config` stays per machine | `keys ssh push` / `keys ssh pull` |
 
 **One age key per machine.** Every entry is encrypted to *all* recipients in
 the store's `.age-recipients`, so all machines share the same secrets, but each
