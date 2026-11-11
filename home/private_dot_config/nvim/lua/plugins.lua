@@ -3,12 +3,23 @@ return {
 	-- ======================================================================
 	-- UI
 	-- ======================================================================
+	-- Colorscheme: only the one picked in settings.lua (nord on WSL) is loaded.
 	{
 		"sainnhe/gruvbox-material",
+		cond = vim.g.user_colorscheme == "gruvbox-material",
 		lazy = false,
 		priority = 1000,
 		config = function()
 			vim.cmd.colorscheme("gruvbox-material")
+		end,
+	},
+	{
+		"shaunsingh/nord.nvim",
+		cond = vim.g.user_colorscheme == "nord",
+		lazy = false,
+		priority = 1000,
+		config = function()
+			vim.cmd.colorscheme("nord")
 		end,
 	},
 	{

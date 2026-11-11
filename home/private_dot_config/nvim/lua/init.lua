@@ -23,7 +23,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup("plugins", {
-	install = { colorscheme = { "gruvbox-material" } },
+	install = { colorscheme = { vim.g.user_colorscheme } },
 	change_detection = { notify = false },
 	rocks = { enabled = false }, -- no plugin needs luarocks
 })

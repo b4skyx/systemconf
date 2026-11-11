@@ -2,11 +2,22 @@
 {{- $name := promptStringOnce . "name" "Git user.name" "anonymous" -}}
 {{- $email := promptStringOnce . "email" "Git user.email" "anonymous@example.invalid" -}}
 {{- $isWsl := and (eq .chezmoi.os "linux") (.chezmoi.kernel.osrelease | lower | contains "microsoft") -}}
+{{- $wslMemory := "" -}}
+{{- $wslSwap := "" -}}
+{{- if eq .chezmoi.os "windows" -}}
+{{-   $wslMemory = promptStringOnce . "wslMemory" "WSL2 memory for .wslconfig (e.g. 24GB; empty = WSL default)" "" -}}
+{{-   $wslSwap = promptStringOnce . "wslSwap" "WSL2 swap for .wslconfig (e.g. 8GB; empty = WSL default)" "" -}}
+{{- end -}}
+
+# Remember where the source lives (e.g. ~/systemconf when using `init --source`)
+sourceDir = '{{ .chezmoi.workingTree }}'
 
 [data]
     name = {{ $name | quote }}
     email = {{ $email | quote }}
     isWsl = {{ $isWsl }}
+    wslMemory = {{ $wslMemory | quote }}
+    wslSwap = {{ $wslSwap | quote }}
 
 [edit]
     command = "nvim"

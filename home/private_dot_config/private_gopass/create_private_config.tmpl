@@ -3,6 +3,8 @@
 [age]
 	agent-timeout = 0
 	agent-enabled = true
+{{- if and (eq .chezmoi.os "linux") (not .isWsl) }}
 	usekeychain = true
+{{- end }}
 [show]
 	safecontent = false

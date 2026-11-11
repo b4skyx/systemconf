@@ -1,0 +1,12 @@
+# WSL2 global settings (%USERPROFILE%\.wslconfig), Windows only.
+# Memory/swap are per machine: answered once by `chezmoi init` on Windows
+# (data wslMemory / wslSwap in chezmoi.toml); empty means the WSL default.
+[wsl2]
+{{- if .wslMemory }}
+memory={{ .wslMemory }}
+{{- end }}
+{{- if .wslSwap }}
+swap={{ .wslSwap }}
+{{- end }}
+networkingMode=mirrored
+dnsTunneling=true

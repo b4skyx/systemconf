@@ -1,3 +1,9 @@
+{{- $suse := and (hasKey .chezmoi "osRelease") (hasKey .chezmoi.osRelease "id") (hasPrefix "opensuse" .chezmoi.osRelease.id) -}}
+{{- if $suse -}}
+# openSUSE: make sure the system profile was read (e.g. for X/Wayland sessions)
+test -z "$PROFILEREAD" && . /etc/profile || true
+
+{{ end -}}
 # ~/.profile: executed by the command interpreter for login shells.
 # This file is not read by bash(1), if ~/.bash_profile or ~/.bash_login
 # exists.
@@ -8,6 +14,7 @@
 # for ssh logins, install and configure the libpam-umask package.
 #umask 022
 
+{{ if not $suse -}}
 # if running bash
 if [ -n "$BASH_VERSION" ]; then
     # include .bashrc if it exists
@@ -15,6 +22,9 @@ if [ -n "$BASH_VERSION" ]; then
 	. "$HOME/.bashrc"
     fi
 fi
+{{- else -}}
+# (openSUSE: /etc/profile already sources ~/.bashrc for bash)
+{{- end }}
 
 # set PATH so it includes user's private bin if it exists
 if [ -d "$HOME/bin" ] ; then

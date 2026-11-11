@@ -3,6 +3,10 @@
 -- Alias
 cmd = vim.api.nvim_command
 
+-- Colorscheme: nord inside WSL, gruvbox-material everywhere else
+-- (used by lua/plugins.lua, lua/init.lua and configs/lualine.lua)
+vim.g.user_colorscheme = vim.fn.has("wsl") == 1 and "nord" or "gruvbox-material"
+
 -- Font
 vim.o.guifont = "Comic Code:h14"
 

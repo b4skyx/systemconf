@@ -1,12 +1,17 @@
 if status is-interactive
     # Commands to run in interactive sessions can go here
+
+    # Prompt (only where starship is installed)
+    if type -q starship
+        starship init fish | source
+    end
 end
 
 set -U fish_greeting ""
 
-function tmux
-	command tmux -u
-end
+# tmux: aliases (ta, tl, ts, ...) and the `tmux` wrapper come from the
+# budimanjojo/tmux.fish plugin (fish_plugins); always start tmux in UTF-8 mode.
+set -g fish_tmux_unicode true
 
 # Add to fish path $HOME/.local/apps/parasoft_cpptest/cpptest
 if test -d $HOME/.local/apps/parasoft_cpptest/cpptest
@@ -48,11 +53,21 @@ end
 set -Ux PYENV_ROOT $HOME/.pyenv
 test -d $PYENV_ROOT/bin; and fish_add_path $PYENV_ROOT/bin
 
-# API keys (GEMINI_API_KEY, DATABRICKS_*_API_KEY) are loaded from gopass by
-# conf.d/keys.fish -> see `keys help` and ~/.config/keys/groups.conf
+# API keys (GEMINI_API_KEY, DATABRICKS_*_API_KEY, OXICORD_TOKEN, ...) are loaded
+# from gopass by conf.d/keys.fish -> see `keys help` and ~/.config/keys/groups.conf
 
+# User-local tool bins (fish_add_path skips directories that do not exist)
+fish_add_path $HOME/.local/bin
+fish_add_path $HOME/.npm-global/bin
+fish_add_path $HOME/.opencode/bin
 # ante
 fish_add_path $HOME/.ante/bin
+
+# Google Cloud SDK (only where it is installed)
+test -f $HOME/google-cloud-sdk/path.fish.inc; and source $HOME/google-cloud-sdk/path.fish.inc
+
+# GPG pinentry needs the tty
+set -gx GPG_TTY (tty)
 
 # Default editor
 set -gx EDITOR nvim

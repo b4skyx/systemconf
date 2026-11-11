@@ -6,13 +6,20 @@
 .tmux.conf
 .terminfo/**
 .config/fish/**
+.config/keys/keys.bash
 .config/kitty/**
 .config/ghostty/**
+{{- end }}
+
+{{- if ne .chezmoi.os "windows" }}
+# Windows-only files (applied by a native Windows chezmoi, never from WSL/Linux)
+.wslconfig
 {{- end }}
 
 {{- if .isWsl }}
 # GUI terminals and terminfo live on the Windows side
 .terminfo/**
+.wezterm.lua
 .config/alacritty/**
 .config/kitty/**
 .config/ghostty/**

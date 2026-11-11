@@ -7,7 +7,7 @@ Cross-machine configuration (Linux, WSL, Windows) managed with
 No secrets and no personal identifiers are stored here:
 
 - API keys and SSH keys live in **gopass** (see [Secrets](#secrets-gopass)) and are
-  loaded at runtime by the fish `keys` command (`keys help`).
+  loaded at runtime by the `keys` command in fish and bash (`keys help`).
 - Git name/email are asked once per machine by `chezmoi init` and stored in
   `~/.config/chezmoi/chezmoi.toml` (outside this repo).
 - Home paths use `$HOME` / `~`, never a literal user name.
@@ -16,16 +16,27 @@ No secrets and no personal identifiers are stored here:
 
 | Source (`home/…`) | Target | Notes |
 |---|---|---|
-| `dot_config/nvim/` | `~/.config/nvim` | Neovim 0.12 config, `lazy-lock.json` tracked |
-| `dot_config/fish/` | `~/.config/fish` | config, `keys` command + loader, guarded rustup/uv setup, `fish_plugins` |
-| `dot_config/keys/groups.conf` | `~/.config/keys/groups.conf` | which gopass entries become which env vars |
-| `dot_config/gopass/create_private_config` | `~/.config/gopass/config` | written only if missing (gopass manages it afterwards) |
+| `private_dot_config/nvim/` | `~/.config/nvim` | Neovim 0.12 config, `lazy-lock.json` tracked; colorscheme nord on WSL, gruvbox-material elsewhere; Windows clipboard on WSL |
+| `private_dot_config/private_fish/` | `~/.config/fish` | config (starship prompt), `keys` command + loader, `fix_patch`, guarded rustup/uv setup, `fish_plugins` |
+| `private_dot_config/keys/` | `~/.config/keys/` | `groups.conf` (which gopass entries become which env vars) and `keys.bash` (bash port of `keys`) |
+| `private_dot_config/private_gopass/create_private_config.tmpl` | `~/.config/gopass/config` | written only if missing (gopass manages it afterwards); keychain only on Linux desktops |
+| `private_dot_config/starship.toml` | `~/.config/starship.toml` | |
 | `dot_tmux.conf` | `~/.tmux.conf` | TPM plugins: `git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm`, then `prefix + I` |
-| `dot_gitconfig.tmpl` | `~/.gitconfig` | name/email from chezmoi data; `~/.gitconfig.local` for machine extras |
-| `dot_bashrc`, `dot_profile` | `~/.bashrc`, `~/.profile` | Ubuntu defaults + nvm/cargo/uv (guarded) |
-| `dot_config/{alacritty,kitty,ghostty,rio}/` | terminal configs | |
+| `dot_gitconfig.tmpl` | `~/.gitconfig` | name/email from chezmoi data; Beyond Compare mergetool on WSL; `~/.gitconfig-turing` for `~/turing/` and `~/.gitconfig.local` for machine extras (both per machine) |
+| `dot_bashrc.tmpl`, `dot_profile.tmpl` | `~/.bashrc`, `~/.profile` | openSUSE or Ubuntu base + pyenv/npm/nvm/cargo/uv (guarded) + gopass `keys` |
+| `private_dot_config/{alacritty,kitty,ghostty,rio}/` | terminal configs | not on WSL (GUI runs on Windows) |
+| `dot_wezterm.lua` | `~/.wezterm.lua` | WezTerm (Windows: `%USERPROFILE%\.wezterm.lua`; opens WSL by default) |
+| `dot_wslconfig.tmpl` | `%USERPROFILE%\.wslconfig` | **Windows only**; memory/swap asked by `chezmoi init` on Windows |
 | `dot_terminfo/a/` | `~/.terminfo/a/` | alacritty terminfo (for distros that lack it) |
-| `dot_pi/agent/` | `~/.pi/agent/` | pi `settings.json`, `models.json` (keys via `$ENV`), permission-system config |
+| `dot_pi/private_agent/` | `~/.pi/agent/` | pi `settings.json`, `models.json` (keys via `$ENV`), extensions (`interactive-shell.ts`, permission-system config) |
+
+Which files apply where is decided by `home/.chezmoiignore`:
+
+- **Windows** (native chezmoi): no bash/fish/tmux/terminfo/kitty/ghostty; gets `.wezterm.lua`, `.wslconfig`, git, nvim, pi.
+- **WSL**: Unix configs only. **Never touches Windows files** (`/mnt/c/...`):
+  the WSL home is the chezmoi target, and `.wslconfig` / GUI terminal configs are ignored.
+  Windows-side files are applied by running chezmoi natively on Windows (see below).
+- **Linux**: everything except `.wslconfig`.
 
 Not synced on purpose: `fish_variables`, fisher-installed plugin files
 (run `fisher update`), `~/.pi/agent/auth.json`, sessions, caches, the gopass
@@ -41,6 +52,7 @@ are visible to anyone with repo access.
 | Path in the store | Contents | Used by |
 |---|---|---|
 | `llm/<provider>/<name>` | API keys (first line), optional `field: value` lines | `keys` → env vars (`~/.config/keys/groups.conf`) |
+| `tokens/<service>/<name>` | other tokens (e.g. `tokens/oxicord/personal` → `OXICORD_TOKEN`) | `keys` → env vars |
 | `ssh/<file>` | SSH key pairs (`~/.ssh/id_*` and `*.pub`); `~/.ssh/config` stays per machine | `keys ssh push` / `keys ssh pull` |
 
 **One age key per machine.** Every entry is encrypted to *all* recipients in
@@ -122,6 +134,21 @@ gopass sync && keys unlock && keys ssh pull
 # 4. configs
 chezmoi init --apply --source ~/systemconf    # or: chezmoi init --apply <git-url>
 fish -c 'fisher update'
+git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm   # then prefix + I
+nvim --headless "+Lazy! restore" +qa          # plugins at lazy-lock.json (needs tree-sitter CLI)
+```
+
+### Windows (native)
+
+WezTerm and `.wslconfig` live in the Windows profile, so they are applied from
+Windows itself (PowerShell), never from WSL:
+
+```powershell
+winget install twpayne.chezmoi
+git clone git@github.com:b4skyx/systemconf.git $HOME\systemconf
+chezmoi init --source $HOME\systemconf     # asks git name/email and WSL memory/swap
+chezmoi diff
+chezmoi apply -v
 ```
 
 ## Day to day

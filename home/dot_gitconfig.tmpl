@@ -3,12 +3,26 @@
 	name = {{ .name }}
 [core]
 	editor = nvim
+# Work identity for repos under ~/turing/ (the file itself is per machine, not synced)
+[includeIf "gitdir:~/turing/"]
+	path = ~/.gitconfig-turing
 [merge]
+{{- if .isWsl }}
+	tool = bc
+{{- else }}
 	tool = nvimdiff
+{{- end }}
 [mergetool "vscode"]
 	cmd = code --wait --merge \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\"
+{{- if .isWsl }}
+# Beyond Compare on the Windows side
+[mergetool "bc"]
+	cmd = /mnt/c/Program\\ Files/Beyond\\ Compare/BCompare.exe \"$(wslpath -w \"$LOCAL\")\" \"$(wslpath -w \"$REMOTE\")\" \"$(wslpath -w \"$BASE\")\" \"$(wslpath -w \"$MERGED\")\"
+	trustExitCode = true
+{{- end }}
 [mergetool]
 	prompt = false
+	keepBackup = false
 [include]
 	# machine-local extras (not synced)
 	path = ~/.gitconfig.local

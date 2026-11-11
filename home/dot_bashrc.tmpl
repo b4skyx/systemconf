@@ -1,3 +1,18 @@
+{{- /* openSUSE ships a full /etc/bash.bashrc (prompt, colors, completion); other distros get the Debian/Ubuntu default body. */ -}}
+{{- $suse := and (hasKey .chezmoi "osRelease") (hasKey .chezmoi.osRelease "id") (hasPrefix "opensuse" .chezmoi.osRelease.id) -}}
+{{- if $suse -}}
+# ~/.bashrc for openSUSE (prompt, colors and completion come from /etc/bash.bashrc).
+#
+# There are 3 different types of shells in bash: the login shell, normal shell
+# and interactive shell. Login shells read ~/.profile and interactive shells
+# read ~/.bashrc.
+#
+# NOTE: It is recommended to make language settings in ~/.profile rather than
+# here, since multilingual X sessions would not work properly if LANG is over-
+# ridden in every subshell.
+
+test -s ~/.alias && . ~/.alias || true
+{{- else -}}
 # ~/.bashrc: executed by bash(1) for non-login shells.
 # see /usr/share/doc/bash/examples/startup-files (in the package bash-doc)
 # for examples
@@ -115,6 +130,22 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
+{{- end }}
+
+# ---------------------------------------------------------------- common ---
+
+# pyenv (only where installed)
+export PYENV_ROOT="$HOME/.pyenv"
+[ -d "$PYENV_ROOT/bin" ] && export PATH="$PYENV_ROOT/bin:$PATH"
+command -v pyenv >/dev/null 2>&1 && eval "$(pyenv init - bash)"
+
+# npm global prefix (~/.npmrc: prefix=~/.npm-global)
+[ -d "$HOME/.npm-global/bin" ] && export PATH="$HOME/.npm-global/bin:$PATH"
+
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
+
+# API keys from gopass (GEMINI_API_KEY, DATABRICKS_*_API_KEY, OXICORD_TOKEN, ...)
+# -> see `keys help` and ~/.config/keys/groups.conf
+[ -r "$HOME/.config/keys/keys.bash" ] && . "$HOME/.config/keys/keys.bash"
