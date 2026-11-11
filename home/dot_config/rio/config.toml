@@ -1,0 +1,57 @@
+copy-on-select = true
+
+[window]
+decorations = "Disabled"
+mode = "Maximized"
+
+[fonts]
+size = 20
+
+[fonts.regular]
+family = "CodeliaLigatures Nerd Font"
+
+[bell]
+visual = true
+
+[colors]
+# Core Colors
+background = "#282828"
+foreground = "#ebdbb2"
+
+# Cursor & Selection
+cursor = "#928374"
+selection-background = "#ebdbb2"
+selection-foreground = "#928374"
+
+# Tabs
+tabs-active-foreground = "#fbf1c7"
+tabs-active = "#665c54"
+tabs-foreground = "#a89984"
+tabs = "#3c3836"
+
+# Borders / Splits
+split = "#d3869b" # Mapped from active_border_color
+
+# Normal Colors
+black = "#665c54"
+red = "#cc241d"
+green = "#98971a"
+yellow = "#d79921"
+blue = "#458588"
+magenta = "#b16286"
+cyan = "#689d6a"
+white = "#a89984"
+
+# Bright/Light Colors
+light-black = "#7c6f64"
+light-red = "#fb4934"
+light-green = "#b8bb26"
+light-yellow = "#fabd2f"
+light-blue = "#83a598"
+light-magenta = "#d3869b"
+light-cyan = "#8ec07c"
+light-white = "#bdae93"
+
+# Note: Rio does not currently have direct 1:1 config keys for `url_color`,
+# `cursor_text_color`, or `bell_border_color` in its standard palette block.
+

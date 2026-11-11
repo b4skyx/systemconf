@@ -1,0 +1,20 @@
+
+{{- if eq .chezmoi.os "windows" }}
+# Unix-only tools
+.bashrc
+.profile
+.tmux.conf
+.terminfo/**
+.config/fish/**
+.config/kitty/**
+.config/ghostty/**
+{{- end }}
+
+{{- if .isWsl }}
+# GUI terminals and terminfo live on the Windows side
+.terminfo/**
+.config/alacritty/**
+.config/kitty/**
+.config/ghostty/**
+.config/rio/**
+{{- end }}

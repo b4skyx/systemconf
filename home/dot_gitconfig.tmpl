@@ -1,0 +1,14 @@
+[user]
+	email = {{ .email }}
+	name = {{ .name }}
+[core]
+	editor = nvim
+[merge]
+	tool = nvimdiff
+[mergetool "vscode"]
+	cmd = code --wait --merge \"$LOCAL\" \"$REMOTE\" \"$BASE\" \"$MERGED\"
+[mergetool]
+	prompt = false
+[include]
+	# machine-local extras (not synced)
+	path = ~/.gitconfig.local

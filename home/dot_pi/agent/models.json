@@ -1,0 +1,216 @@
+{
+  "providers": {
+    "databricks-atlas": {
+      "baseUrl": "https://dbc-ea4006c8-365b.cloud.databricks.com/ai-gateway/mlflow/v1",
+      "api": "openai-completions",
+      "authHeader": true,
+      "models": [
+        {
+          "id": "stla_ai_gw.atlas.atlas-glm-5-3-flash",
+          "name": "Atlas GLM 5.3 Flash (Databricks)",
+          "contextWindow": 262144,
+          "maxTokens": 131072,
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ]
+        }
+      ],
+      "compat": {
+        "maxTokensField": "max_tokens"
+      },
+      "apiKey": "$DATABRICKS_EU_API_KEY"
+    },
+    "databricks": {
+      "baseUrl": "https://dbc-deebf286-07d0.cloud.databricks.com/ai-gateway/mlflow/v1",
+      "api": "openai-completions",
+      "authHeader": true,
+      "models": [
+        {
+          "id": "system.ai.kimi-k3",
+          "name": "Kimi K3 (Databricks)",
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ],
+          "contextWindow": 1048576,
+          "maxTokens": 131072
+        },
+        {
+          "id": "system.ai.grok-4-7",
+          "contextWindow": 500000,
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "system.ai.deepseek-v4-1-flash",
+          "contextWindow": 1000000,
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "system.ai.glm-5-3",
+          "contextWindow": 1000000,
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "system.ai.glm-5-3-flash",
+          "contextWindow": 1048576,
+          "input": [
+            "text",
+            "image"
+          ]
+        }
+      ],
+      "compat": {
+        "supportsStore": false,
+        "supportsDeveloperRole": false,
+        "supportsReasoningEffort": false,
+        "maxTokensField": "max_tokens",
+        "supportsLongCacheRetention": false
+      },
+      "apiKey": "$DATABRICKS_NA_API_KEY"
+    },
+    "databricks-gpt": {
+      "baseUrl": "https://dbc-deebf286-07d0.cloud.databricks.com/ai-gateway/codex/v1",
+      "api": "openai-responses",
+      "authHeader": true,
+      "models": [
+        {
+          "id": "system.ai.gpt-6-1-sol",
+          "contextWindow": 1050000,
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "system.ai.gpt-6-luna",
+          "contextWindow": 1000000,
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "system.ai.gpt-6-sol",
+          "contextWindow": 1000000,
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ]
+        },
+        {
+          "id": "system.ai.gpt-6-astra",
+          "contextWindow": 1000000,
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ]
+        }
+      ],
+      "apiKey": "$DATABRICKS_NA_API_KEY"
+    },
+    "databricks-gemini": {
+      "baseUrl": "https://dbc-deebf286-07d0.cloud.databricks.com/ai-gateway/gemini/v1beta",
+      "api": "google-generative-ai",
+      "authHeader": true,
+      "models": [
+        {
+          "id": "system.ai.gemini-3-8-flash",
+          "contextWindow": 1048576,
+          "input": [
+            "text",
+            "image"
+          ]
+        }
+      ],
+      "apiKey": "$DATABRICKS_NA_API_KEY"
+    },
+    "databricks-claude": {
+      "baseUrl": "https://dbc-deebf286-07d0.cloud.databricks.com/ai-gateway/anthropic",
+      "api": "anthropic-messages",
+      "authHeader": true,
+      "models": [
+        {
+          "id": "system.ai.claude-haiku-5-5",
+          "name": "Claude Haiku 5.5 (Databricks)",
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ],
+          "contextWindow": 1000000,
+          "maxTokens": 128000,
+          "thinkingLevelMap": {
+            "off": null,
+            "minimal": null,
+            "low": "low",
+            "medium": "medium",
+            "high": "high",
+            "xhigh": "xhigh",
+            "max": "max"
+          },
+          "compat": {
+            "forceAdaptiveThinking": true,
+            "supportsTemperature": false
+          }
+        },
+        {
+          "id": "system.ai.claude-sonnet-5-5",
+          "name": "Claude Sonnet 5.5 (Databricks)",
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ],
+          "contextWindow": 1000000,
+          "maxTokens": 128000,
+          "thinkingLevelMap": {
+            "off": null,
+            "xhigh": "xhigh",
+            "max": "max"
+          },
+          "compat": {
+            "forceAdaptiveThinking": true,
+            "supportsTemperature": false
+          }
+        },
+        {
+          "id": "system.ai.claude-opus-5-5",
+          "name": "Claude Opus 5.5 (Databricks)",
+          "reasoning": true,
+          "input": [
+            "text",
+            "image"
+          ],
+          "contextWindow": 1000000,
+          "maxTokens": 128000,
+          "thinkingLevelMap": {
+            "off": null,
+            "xhigh": "xhigh",
+            "max": "max"
+          },
+          "compat": {
+            "forceAdaptiveThinking": true,
+            "supportsTemperature": false
+          }
+        }
+      ],
+      "apiKey": "$DATABRICKS_NA_API_KEY"
+    }
+  }
+}

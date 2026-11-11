@@ -1,0 +1,8 @@
+[mounts]
+	path = ~/.local/share/gopass/stores/root
+[age]
+	agent-timeout = 0
+	agent-enabled = true
+	usekeychain = true
+[show]
+	safecontent = false
