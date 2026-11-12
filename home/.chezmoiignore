@@ -1,4 +1,8 @@
 
+# Untracked machine-local overrides (created empty by run_after_ensure-usersettings.sh)
+.config/nvim/lua/usersettings.lua
+.config/fish/usersettings.fish
+
 {{- if eq .chezmoi.os "windows" }}
 # Unix-only tools
 .bashrc

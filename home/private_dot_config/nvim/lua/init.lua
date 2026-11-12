@@ -2,6 +2,14 @@
 require('settings')
 require('keymappings')
 
+-- Machine-local overrides (untracked by chezmoi), e.g. vim.g.user_colorscheme.
+-- Loaded before lazy so plugin conds/colorscheme see the override. A missing
+-- file is fine; real errors inside it are still reported.
+local ok, err = pcall(require, 'usersettings')
+if not ok and not tostring(err):match("module 'usersettings' not found") then
+	vim.notify(err, vim.log.levels.ERROR)
+end
+
 if vim.g.neovide then
 	vim.o.guifont = "Comic Code:h14"
 	vim.g.neovide_refresh_rate = 120

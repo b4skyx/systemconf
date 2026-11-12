@@ -72,3 +72,7 @@ set -gx GPG_TTY (tty)
 # Default editor
 set -gx EDITOR nvim
 set -gx VISUAL nvim
+
+# Machine-local overrides (untracked by chezmoi, e.g. homebrew shellenv).
+# Sourced last so it can override anything above.
+test -f $__fish_config_dir/usersettings.fish; and source $__fish_config_dir/usersettings.fish

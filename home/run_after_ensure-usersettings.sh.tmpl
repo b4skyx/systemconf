@@ -1,0 +1,21 @@
+{{- /*
+  Create untracked machine-local override files if they are missing; never
+  overwrites. The files are listed in .chezmoiignore, so `chezmoi add` /
+  `re-add` skip them. Renders empty (and is skipped by chezmoi) once all
+  files exist, so it does not show up in `chezmoi status`.
+*/ -}}
+{{- if ne .chezmoi.os "windows" -}}
+{{- $files := list ".config/nvim/lua/usersettings.lua" ".config/fish/usersettings.fish" -}}
+{{- $missing := list -}}
+{{- range $files -}}
+{{-   $p := joinPath $.chezmoi.destDir . -}}
+{{-   if not (stat $p) }}{{ $missing = append $missing $p }}{{ end -}}
+{{- end -}}
+{{- if $missing -}}
+#!/bin/sh
+# Create untracked local-override files if missing (never overwrites)
+{{- range $missing }}
+mkdir -p {{ dir . | quote }} && [ -e {{ . | quote }} ] || : > {{ . | quote }}
+{{- end }}
+{{ end -}}
+{{- end -}}

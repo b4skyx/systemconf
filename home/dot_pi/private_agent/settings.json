@@ -13,7 +13,8 @@
     "npm:@gotgenes/pi-permission-system",
     "npm:pi-worktree",
     "npm:pi-btw",
-    "npm:pi-context-mode"
+    "npm:pi-context-mode",
+    "npm:pi-interactive-shell"
   ],
   "hideThinkingBlock": true,
   "enabledModels": [
@@ -47,6 +48,7 @@
     "{\"source\":\"npm:@narumitw/pi-usage\",\"scope\":\"user\"}": "0.69.3",
     "{\"source\":\"npm:@mu-crew/murmur\",\"scope\":\"user\"}": "2.0.2",
     "{\"source\":\"npm:@gotgenes/pi-permission-system\",\"scope\":\"user\"}": "42.0.0",
-    "{\"source\":\"npm:pi-permission-classifier\",\"scope\":\"user\"}": "0.6.1"
+    "{\"source\":\"npm:pi-permission-classifier\",\"scope\":\"user\"}": "0.6.1",
+    "{\"source\":\"npm:pi-interactive-shell\",\"scope\":\"user\"}": "0.18.0"
   }
 }
