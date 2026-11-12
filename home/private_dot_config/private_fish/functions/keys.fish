@@ -12,7 +12,10 @@
 #   keys add <group> <prov>   store a new key (hidden prompt)
 #   keys rotate <group> [prov] replace a stored key, keep its other fields
 #   keys unlock               unlock gopass (prompts for the age passphrase)
-#   keys ssh push|pull|ls     sync ~/.ssh keys through gopass
+#   keys ssh push <name>|all  push keys to gopass (no default); bare name = pair
+#   keys ssh pull [name|all] [--force]
+#                             restore keys from gopass (default: all)
+#   keys ssh ls               list tracked keys in the store
 #   keys edit                 edit groups.conf
 function keys --description 'Manage API keys stored in gopass'
     set -l cmd status
@@ -278,25 +281,92 @@ end
 
 # SSH keys: stored as binary entries under ssh/<filename>.
 # Only key pairs (~/.ssh/id_* and their .pub); ~/.ssh/config stays per machine.
+# Names may be given with or without .pub; a bare name selects the whole pair.
+# push takes explicit names or `all` (no default); pull defaults to all.
 # Uses `gopass cat` (stdin) so commit messages never contain local paths.
 function __keys_ssh -a sub
     set -l force 0
-    contains -- --force $argv; and set force 1
+    set -l names
+    set -l failed 0
+    for a in $argv[2..-1]
+        if test "$a" = --force
+            set force 1
+        else
+            set -a names $a
+        end
+    end
+
     switch "$sub"
         case push
+            if test (count $names) -eq 0
+                echo "usage: keys ssh push <name>... | all  (no default)" >&2
+                return 1
+            end
             set -l files
-            for k in ~/.ssh/id_*
-                string match -q '*.pub' -- $k; and continue
-                set -a files $k $k.pub
+            if contains -- all $names
+                for k in ~/.ssh/id_*
+                    string match -q '*.pub' -- $k; and continue
+                    test -f $k; or continue
+                    set -a files $k $k.pub
+                end
+            else
+                for n in $names
+                    set -l base (string replace -r '\.pub$' '' -- $n)
+                    set -l hit 0
+                    if test -f ~/.ssh/$base
+                        set -a files ~/.ssh/$base
+                        set hit 1
+                    end
+                    if test -f ~/.ssh/$base.pub
+                        set -a files ~/.ssh/$base.pub
+                        set hit 1
+                    end
+                    if test $hit = 0
+                        echo "keys: no local key matching '$n'" >&2
+                        set failed 1
+                    end
+                end
             end
             for file in $files
-                test -f $file; or continue
+                # Skip when the store already has identical content.
+                set -l tmp (mktemp)
+                if gopass cat ssh/(path basename $file) >$tmp 2>/dev/null; and cmp -s $tmp $file
+                    rm -f $tmp
+                    echo "up-to-date ssh/"(path basename $file)
+                    continue
+                end
+                rm -f $tmp
                 gopass cat ssh/(path basename $file) <$file >/dev/null
                 and echo "pushed ssh/"(path basename $file)
+                or set failed 1
             end
         case pull
             mkdir -p ~/.ssh; and chmod 700 ~/.ssh
-            for e in (gopass ls --flat ssh 2>/dev/null)
+            set -l entries (gopass ls --flat ssh 2>/dev/null)
+            if test (count $entries) -eq 0
+                __keys_locked_hint
+                return 1
+            end
+            if test (count $names) -gt 0; and not contains -- all $names
+                set -l filtered
+                for n in $names
+                    set -l base (string replace -r '\.pub$' '' -- $n)
+                    set -l hit 0
+                    for e in $entries
+                        set -l name (string replace 'ssh/' '' -- $e)
+                        if test "$name" = "$n"; or test (string replace -r '\.pub$' '' -- $name) = "$base"
+                            contains -- $e $filtered; or set -a filtered $e
+                            set hit 1
+                        end
+                    end
+                    if test $hit = 0
+                        echo "keys: nothing in store matches '$n'" >&2
+                        set failed 1
+                    end
+                end
+                set entries $filtered
+            end
+            for e in $entries
                 set -l name (string replace 'ssh/' '' -- $e)
                 set -l dest ~/.ssh/$name
                 if test -e $dest; and test $force = 0
@@ -316,7 +386,8 @@ function __keys_ssh -a sub
         case ls list ''
             gopass ls --flat ssh 2>/dev/null
         case '*'
-            echo "usage: keys ssh push | pull [--force] | ls" >&2
+            echo "usage: keys ssh push <name>... | all | pull [name...|all] [--force] | ls" >&2
             return 1
     end
+    test $failed = 0
 end

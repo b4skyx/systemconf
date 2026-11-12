@@ -9,7 +9,9 @@
 #   keys reload [-q]           (re)load all groups into this shell
 #   keys list [group]          list stored providers
 #   keys unlock | lock         unlock / lock the gopass age agent
-#   keys add|rotate|ssh|edit   handled by the fish implementation (fish -c 'keys ...')
+#   keys add|rotate|edit       handled by the fish implementation (fish -c 'keys ...')
+#   keys ssh push <name>|all | pull [name|all] [--force] | ls
+#                              sync ~/.ssh keys through gopass (native here)
 #
 # Sourced from ~/.bashrc. Never prompts on load: if gopass is locked it prints
 # a hint to run `keys unlock`.
@@ -171,6 +173,103 @@ __keys_list() {
     done < <(__keys_lines "${1:-}")
 }
 
+# SSH keys: stored as binary entries under ssh/<filename>.
+# Names may be given with or without .pub; a bare name selects the whole pair.
+# push takes explicit names or `all` (no default); pull defaults to all.
+__keys_ssh() {
+    local sub=$1
+    shift
+    local force=0
+    local -a names
+    local a
+    for a in "$@"; do
+        if [ "$a" = --force ]; then force=1; else names+=("$a"); fi
+    done
+
+    case "$sub" in
+        push)
+            if [ "${#names[@]}" -eq 0 ]; then
+                echo "usage: keys ssh push <name>... | all  (no default)" >&2
+                return 1
+            fi
+            local -a files
+            local k n base hit file tmp cur
+            if printf '%s\n' "${names[@]}" | grep -qx all; then
+                for k in "$HOME"/.ssh/id_*; do
+                    [ -f "$k" ] || continue
+                    [[ $k == *.pub ]] && continue
+                    files+=("$k" "$k.pub")
+                done
+            else
+                for n in "${names[@]}"; do
+                    base=${n%.pub}
+                    hit=0
+                    if [ -f "$HOME/.ssh/$base" ]; then files+=("$HOME/.ssh/$base"); hit=1; fi
+                    if [ -f "$HOME/.ssh/$base.pub" ]; then files+=("$HOME/.ssh/$base.pub"); hit=1; fi
+                    [ $hit = 1 ] || { echo "keys: no local key matching '$n'" >&2; return 1; }
+                done
+            fi
+            for file in "${files[@]}"; do
+                # Skip when the store already has identical content.
+                tmp=$(mktemp)
+                if gopass cat "ssh/$(basename "$file")" >"$tmp" 2>/dev/null && cmp -s "$tmp" "$file"; then
+                    rm -f "$tmp"
+                    echo "up-to-date ssh/$(basename "$file")"
+                    continue
+                fi
+                rm -f "$tmp"
+                gopass cat "ssh/$(basename "$file")" <"$file" >/dev/null \
+                    && echo "pushed ssh/$(basename "$file")" || return 1
+            done
+            ;;
+        pull)
+            mkdir -p "$HOME/.ssh" && chmod 700 "$HOME/.ssh"
+            local -a entries filtered
+            local e name dest
+            mapfile -t entries < <(gopass ls --flat ssh 2>/dev/null)
+            if [ "${#entries[@]}" -eq 0 ]; then
+                __keys_locked_hint
+                return 1
+            fi
+            if [ "${#names[@]}" -gt 0 ] && ! printf '%s\n' "${names[@]}" | grep -qx all; then
+                for n in "${names[@]}"; do
+                    base=${n%.pub}
+                    hit=0
+                    for e in "${entries[@]}"; do
+                        name=${e#ssh/}
+                        if [ "$name" = "$n" ] || [ "${name%.pub}" = "$base" ]; then
+                            filtered+=("$e")
+                            hit=1
+                        fi
+                    done
+                    [ $hit = 1 ] || { echo "keys: nothing in store matches '$n'" >&2; return 1; }
+                done
+                entries=("${filtered[@]}")
+            fi
+            for e in "${entries[@]}"; do
+                name=${e#ssh/}
+                dest="$HOME/.ssh/$name"
+                if [ -e "$dest" ] && [ $force = 0 ]; then
+                    echo "skip $dest (exists; use --force)"
+                    continue
+                fi
+                [ -e "$dest" ] && cp -p "$dest" "$dest.bak-$(date +%Y%m%d%H%M%S)"
+                : >"$dest" && chmod 600 "$dest" # never world-readable, even briefly
+                gopass cat "$e" >"$dest" || continue
+                if [[ $name == *.pub ]]; then chmod 644 "$dest"; else chmod 600 "$dest"; fi
+                echo "pulled $dest"
+            done
+            ;;
+        ls | list | '')
+            gopass ls --flat ssh 2>/dev/null
+            ;;
+        *)
+            echo "usage: keys ssh push <name>... | all | pull [name...|all] [--force] | ls" >&2
+            return 1
+            ;;
+    esac
+}
+
 keys() {
     local cmd=${1:-status}
     [ $# -gt 0 ] && shift
@@ -198,7 +297,7 @@ keys() {
         list | ls) __keys_list "$@" ;;
         unlock) gopass age agent unlock && __keys_reload ;;
         lock) gopass age agent lock ;;
-        add | rotate | ssh | edit)
+        add | rotate | edit)
             if command -v fish >/dev/null 2>&1; then
                 fish -c 'keys $argv' -- "$cmd" "$@"
                 # add/rotate may change values used by this shell
@@ -208,7 +307,8 @@ keys() {
                 return 1
             fi
             ;;
-        help | -h | --help) sed -n '6,12p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' ;;
+        ssh) __keys_ssh "${1:-}" "${@:2}" ;;
+        help | -h | --help) sed -n '6,14p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//' ;;
         *)
             echo "keys: unknown command '$cmd' (see: keys help)" >&2
             return 1
