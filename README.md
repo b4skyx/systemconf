@@ -153,9 +153,21 @@ chezmoi apply -v
 
 ## Day to day
 
+chezmoi does not track changes automatically: new files need `chezmoi add`,
+edits made in `~` need `chezmoi re-add`, and templates (`*.tmpl`) are edited
+with `chezmoi edit`. Full guide (templates vs. plain files, what never to add):
+[CHEZMOI_README.md](CHEZMOI_README.md).
+
 ```sh
-chezmoi diff            # what would change
-chezmoi apply -v        # write configs
-chezmoi re-add <file>   # copy an edited target back into this repo
-chezmoi cd              # jump here to commit
+chezmoi status                  # anything changed?
+chezmoi diff                    # read the changes (what `apply` would do to ~)
+chezmoi re-add                  # copy back all changed plain files (templates are skipped)
+chezmoi git -- diff             # check: no secrets, nothing unintended
+chezmoi git -- add -A
+chezmoi git -- commit -m "..."
+chezmoi git -- push
+
+chezmoi add <file>              # start tracking a new file
+chezmoi edit <file>             # edit a template, then: chezmoi apply <file>
+chezmoi update                  # on other machines: git pull + apply
 ```
