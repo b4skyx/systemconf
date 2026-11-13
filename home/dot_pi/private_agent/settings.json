@@ -12,9 +12,9 @@
     "npm:@gotgenes/pi-permission-system",
     "npm:pi-worktree",
     "npm:pi-btw",
-    "npm:pi-context-mode",
     "npm:pi-interactive-shell",
-    "npm:pi-subagents"
+    "npm:pi-subagents",
+    "npm:context-mode"
   ],
   "hideThinkingBlock": false,
   "enabledModels": [
