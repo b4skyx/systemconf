@@ -1,0 +1,9 @@
+# Gruvbox dark flavor (installed via `ya pkg add bennyyip/gruvbox-dark`)
+[flavor]
+dark = "gruvbox-dark"
+
+# Square borders on the hovered row + borders and linemode
+[mgr]
+border_style = { fg = "#83a598" }
+border_symbol = "│"
+linemode = "size"

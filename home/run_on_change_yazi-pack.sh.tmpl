@@ -1,0 +1,9 @@
+#!/bin/sh
+# Restore yazi plugins and flavors from package.toml
+if command -v ya >/dev/null 2>&1; then
+  if ya pkg install --help >/dev/null 2>&1; then
+    ya pkg install
+  else
+    ya pack -u  # older yazi
+  fi
+fi

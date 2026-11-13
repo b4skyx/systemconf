@@ -4,7 +4,6 @@
   "defaultProvider": "databricks-atlas",
   "defaultModel": "stla_ai_gw.atlas.atlas-glm-5-3-flash",
   "packages": [
-    "npm:pi-subagents",
     "npm:pi-web-access",
     "npm:@juicesharp/rpiv-ask-user-question",
     "npm:@juicesharp/rpiv-todo",
@@ -14,7 +13,8 @@
     "npm:pi-worktree",
     "npm:pi-btw",
     "npm:pi-context-mode",
-    "npm:pi-interactive-shell"
+    "npm:pi-interactive-shell",
+    "npm:pi-subagents"
   ],
   "hideThinkingBlock": true,
   "enabledModels": [
